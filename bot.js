@@ -17,21 +17,18 @@ app.post("/webhook", (req, res) => {
   res.sendStatus(200);
 });
 
-
 // Listen for /start command
-bot.onText(/\/start/, (msg) => {
+bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
-  bot.sendMessage(
+  await bot.sendMessage(
     chatId,
     "مرحبا بك ,أنا روبوت جاهز لمساعدتك في تحميل أي فيديو من اليوتيوب"
   );
-  bot.sendMessage(
+  await bot.sendMessage(chatId, "للبدأ بالتحميل اكتب الأمر التالي  : ");
+  await bot.sendMessage(chatId, "/download https://www.youtube.com");
+  await bot.sendMessage(
     chatId,
-    "للبدأ بالتحميل اكتب الأمر التالي و قم باستبدال الرابط الموجود بالرابط الذي تريده  : "
-  );
-  bot.sendMessage(
-    chatId,
-    "/download www.youtube.com"
+    "ثم قم باستبدال الرابط الموجود بالرابط الذي تريده"
   );
 });
 
