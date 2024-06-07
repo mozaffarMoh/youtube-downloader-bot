@@ -25,10 +25,10 @@ bot.onText(/\/start/, async (msg) => {
     "مرحبا بك ,أنا روبوت جاهز لمساعدتك في تحميل أي فيديو من اليوتيوب"
   );
   await bot.sendMessage(chatId, "للبدأ بالتحميل اكتب الأمر التالي  : ");
-  await bot.sendMessage(chatId, "/download https://www.youtube.com");
+  await bot.sendMessage(chatId, "/download ");
   await bot.sendMessage(
     chatId,
-    "ثم قم باستبدال الرابط الموجود بالرابط الذي تريده"
+    "ثم بعدها مباشرة أدخل رابط اليوتيوب الذي تريد تحمليه"
   );
 });
 
