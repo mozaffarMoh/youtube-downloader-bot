@@ -24,7 +24,7 @@ bot.onText(/\/(\w+)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const command = match[1].toLowerCase();
   commandsList.forEach(async (item) => {
-    if (!item.startsWith(command)) {
+    if (!command.startsWith(item)) {
       await bot.sendMessage(chatId, "الأمر غير موجود الرجاء التأكد");
     }
   });
@@ -36,51 +36,60 @@ bot.onText(/\/start/, async (msg) => {
     chatId,
     "مرحبا بك ,أنا روبوت جاهز لمساعدتك في تحميل أي فيديو من اليوتيوب"
   );
-  await bot.sendMessage(chatId, "للبدأ بالتحميل اكتب الأمر التالي  : ");
+  await bot.sendMessage(chatId, "للبدأ بالتحميل اضغط على الأمر التالي  : ");
   await bot.sendMessage(chatId, "/download ");
-  await bot.sendMessage(
-    chatId,
-    "ثم بعدها مباشرة أدخل رابط اليوتيوب الذي تريد تحمليه"
-  );
 });
 
 // Listen for /download command
-bot.onText(/\/download (.+)/, async (msg, match) => {
+bot.onText(/\/download (.+)/, async (msg) => {
   const chatId = msg.chat.id;
-  const youtubeUrl = match[1];
+  await bot.sendMessage(chatId, "الآن  قم بادخال الرابط المطلوب:");
 
-  // Check if the provided URL is a valid YouTube URL
-  if (!isValidYoutubeUrl(youtubeUrl)) {
-    await bot.sendMessage(chatId, "الرابط الذي قمت بإدخاله غير صحيح");
-    return;
-  }
+  bot.once("message", async (reply) => {
+    if (reply.chat.id === chatId) {
+      const youtubeUrl = reply.text;
 
-  try {
-    await bot.sendMessage(chatId, `يتم تحضير الرابط, الرجاء الإنتظار....`);
-    const fullYoutubeUrl = getFullYoutubeUrl(youtubeUrl);
-    const info = await ytdl.getBasicInfo(fullYoutubeUrl);
+      // Check if the provided URL is a valid YouTube URL
+      if (!isValidYoutubeUrl(youtubeUrl)) {
+        await bot.sendMessage(chatId, "الرابط الذي قمت بإدخاله غير صحيح");
+        return;
+      }
 
-    /* Send image  */
-    const imageUrl =
-      info.videoDetails.thumbnails[info.videoDetails.thumbnails.length - 1].url;
-    await bot.sendPhoto(chatId, imageUrl, { caption: info.videoDetails.title });
+      try {
+        await bot.sendMessage(chatId, `يتم تحضير الرابط, الرجاء الإنتظار....`);
+        const fullYoutubeUrl = getFullYoutubeUrl(youtubeUrl);
+        const info = await ytdl.getBasicInfo(fullYoutubeUrl);
 
-    // Send the formats as links
-    for (const item of info.formats) {
-      const VideoFile = `<a href="${item.url}" target="_blank" download="Video.mp4">${item.qualityLabel}</a>`;
-      const AudioFile = `<a href="${item.url}" target="_blank" download="Audio.mp3">Audio</a>`;
-      await bot.sendMessage(chatId, item.qualityLabel ? VideoFile : AudioFile, {
-        parse_mode: "HTML",
-      });
+        /* Send image  */
+        const imageUrl =
+          info.videoDetails.thumbnails[info.videoDetails.thumbnails.length - 1]
+            .url;
+        await bot.sendPhoto(chatId, imageUrl, {
+          caption: info.videoDetails.title,
+        });
+
+        // Send the formats as links
+        for (const item of info.formats) {
+          const VideoFile = `<a href="${item.url}" target="_blank" download="Video.mp4">${item.qualityLabel}</a>`;
+          const AudioFile = `<a href="${item.url}" target="_blank" download="Audio.mp3">Audio</a>`;
+          await bot.sendMessage(
+            chatId,
+            item.qualityLabel ? VideoFile : AudioFile,
+            {
+              parse_mode: "HTML",
+            }
+          );
+        }
+        await bot.sendMessage(chatId, "Happy Download :)");
+      } catch (error) {
+        await bot.sendMessage(
+          chatId,
+          "Failed to get video info. Please check the URL."
+        );
+        console.error(error);
+      }
     }
-    await bot.sendMessage(chatId, "Happy Download :)");
-  } catch (error) {
-    await bot.sendMessage(
-      chatId,
-      "Failed to get video info. Please check the URL."
-    );
-    console.error(error);
-  }
+  });
 });
 
 /* Check shortcuts video links */
