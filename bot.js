@@ -23,12 +23,12 @@ app.post("/webhook", (req, res) => {
 bot.onText(/\/(\w+)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const command = match[1].toLowerCase();
-  console.log(msg, "**********", match);
-  if (!commandsList.includes(command)) {
-    await bot.sendMessage(chatId, "الأمر غير موجود الرجاء التأكد");
-  }
+  commandsList.forEach(async (item) => {
+    if (!item.startsWith(command)) {
+      await bot.sendMessage(chatId, "الأمر غير موجود الرجاء التأكد");
+    }
+  });
 });
-
 // Listen for /start command
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
