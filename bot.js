@@ -7,7 +7,6 @@ const { isURL } = require("validator");
 
 const botToken = process.env.BOT_TOKEN; // Retrieve bot token from environment variable
 const bot = new TelegramBot(botToken);
-const commandsList = ["start", "download"];
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -21,18 +20,9 @@ app.post("/webhook", (req, res) => {
 
 bot.on("new_chat_member", async (msg) => {
   const chatId = msg.chat.id;
-  const welcomeMessage = `مرحبا بك للبدء اضغط على الأمر التالي :`;
+  const welcomeMessage = `أهلا وسهلا بك للبدء اضغط على الأمر التالي :`;
   await bot.sendMessage(chatId, welcomeMessage);
   await bot.sendMessage(chatId, "/start");
-});
-
-/* Send error if command not right */
-bot.onText(/\/(\w+)/, async (msg, match) => {
-  const chatId = msg.chat.id;
-  const command = match[1].toLowerCase();
-  if (!commandsList.includes(command)) {
-    await bot.sendMessage(chatId, "الأمر غير موجود الرجاء التأكد");
-  }
 });
 
 // Listen for /start command
@@ -40,7 +30,7 @@ bot.onText(/\/start$/, async (msg, match) => {
   const chatId = msg.chat.id;
   await bot.sendMessage(
     chatId,
-    "مرحبا بك ,أنا روبوت جاهز لمساعدتك في تحميل أي فيديو من اليوتيوب"
+    "مرحبا بك مجددا ,أنا روبوت جاهز لمساعدتك في تحميل أي فيديو من اليوتيوب"
   );
   await bot.sendMessage(chatId, "للبدأ بالتحميل اضغط على الأمر التالي  : ");
   await bot.sendMessage(chatId, "/download ");
@@ -57,7 +47,11 @@ bot.onText(/\/download$/, async (msg) => {
 
       // Check if the provided URL is a valid YouTube URL
       if (!isValidYoutubeUrl(youtubeUrl)) {
-        await bot.sendMessage(chatId, "الرابط الذي قمت بإدخاله غير صحيح");
+        await bot.sendMessage(
+          chatId,
+          "الرابط الذي قمت بإدخاله غير صحيح تأكد من أنه رابط يوتيوب ثم حاول مرة أخرى"
+        );
+        await bot.sendMessage(chatId, "/download");
         return;
       }
 
@@ -87,11 +81,15 @@ bot.onText(/\/download$/, async (msg) => {
           );
         }
         await bot.sendMessage(chatId, "Happy Download :)");
+
+        await bot.sendMessage(chatId, "للمزيد اضغط على :");
+        await bot.sendMessage(chatId, "/download");
       } catch (error) {
         await bot.sendMessage(
           chatId,
-          "Failed to get video info. Please check the URL."
+          "لايوجد معلومات تاكد من الرابط ثم حاول مرة أخرى"
         );
+        await bot.sendMessage(chatId, "/download");
         console.error(error);
       }
     }
@@ -120,6 +118,15 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-// Set up webhook
+/* Set up webhook */
 const webhookUrl = process.env.WEBHOOK_URL; // Retrieve webhook URL from environment variable
 bot.setWebHook(`${webhookUrl}/webhook`);
+
+/* bot
+  .startPolling()
+  .then(() => {
+    console.log("Bot is ready!");
+  })
+  .catch((error) => {
+    console.error("Error starting bot:", error);
+  }); */
