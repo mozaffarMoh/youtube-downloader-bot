@@ -1,11 +1,13 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const TelegramBot = require("node-telegram-bot-api");
+require("dotenv").config();
 const ytdl = require("ytdl-core");
 const { isURL } = require("validator");
 
 const botToken = process.env.BOT_TOKEN; // Retrieve bot token from environment variable
 const bot = new TelegramBot(botToken);
+const commandsList = ["start", "download"];
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -15,6 +17,16 @@ app.use(bodyParser.json());
 app.post("/webhook", (req, res) => {
   bot.processUpdate(req.body);
   res.sendStatus(200);
+});
+
+/* Send error if command not right */
+bot.onText(/\/(\w+)/, async (msg, match) => {
+  const chatId = msg.chat.id;
+  const command = match[1].toLowerCase();
+  console.log(msg, "**********", match);
+  if (!commandsList.includes(command)) {
+    await bot.sendMessage(chatId, "الأمر غير موجود الرجاء التأكد");
+  }
 });
 
 // Listen for /start command
