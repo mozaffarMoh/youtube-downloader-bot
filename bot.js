@@ -96,5 +96,6 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-const webhookUrl = process.env.WEBHOOK_URL;
-bot.setWebHook(webhookUrl);
+// Set up webhook
+const webhookUrl = process.env.WEBHOOK_URL; // Retrieve webhook URL from environment variable
+bot.setWebHook(`${webhookUrl}/webhook`);
