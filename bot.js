@@ -59,6 +59,7 @@ bot.onText(/\/download$/, async (msg) => {
         await bot.sendMessage(chatId, `يتم تحضير الرابط, الرجاء الإنتظار....`);
         const fullYoutubeUrl = getFullYoutubeUrl(youtubeUrl);
         const info = await ytdl.getBasicInfo(fullYoutubeUrl);
+        console.log(info);
 
         /* Send image  */
         const imageUrl =
@@ -122,11 +123,12 @@ app.listen(port, () => {
 const webhookUrl = process.env.WEBHOOK_URL; // Retrieve webhook URL from environment variable
 bot.setWebHook(`${webhookUrl}/webhook`);
 
-/* bot
+/*  bot
   .startPolling()
   .then(() => {
     console.log("Bot is ready!");
   })
   .catch((error) => {
     console.error("Error starting bot:", error);
-  }); */
+  }); 
+ */
