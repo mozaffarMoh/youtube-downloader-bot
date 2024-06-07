@@ -19,18 +19,24 @@ app.post("/webhook", (req, res) => {
   res.sendStatus(200);
 });
 
+bot.on("new_chat_member", async (msg) => {
+  const chatId = msg.chat.id;
+  const welcomeMessage = `مرحبا بك للبدء اضغط على الأمر التالي :`;
+  await bot.sendMessage(chatId, welcomeMessage);
+  await bot.sendMessage(chatId, "/start");
+});
+
 /* Send error if command not right */
 bot.onText(/\/(\w+)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const command = match[1].toLowerCase();
-  commandsList.forEach(async (item) => {
-    if (!command.startsWith(item)) {
-      await bot.sendMessage(chatId, "الأمر غير موجود الرجاء التأكد");
-    }
-  });
+  if (!commandsList.includes(command)) {
+    await bot.sendMessage(chatId, "الأمر غير موجود الرجاء التأكد");
+  }
 });
+
 // Listen for /start command
-bot.onText(/\/start/, async (msg) => {
+bot.onText(/\/start$/, async (msg, match) => {
   const chatId = msg.chat.id;
   await bot.sendMessage(
     chatId,
@@ -41,9 +47,9 @@ bot.onText(/\/start/, async (msg) => {
 });
 
 // Listen for /download command
-bot.onText(/\/download (.+)/, async (msg) => {
+bot.onText(/\/download$/, async (msg) => {
   const chatId = msg.chat.id;
-  await bot.sendMessage(chatId, "الآن  قم بادخال الرابط المطلوب:");
+  await bot.sendMessage(chatId, "الآن قم بادخال الرابط المطلوب:");
 
   bot.once("message", async (reply) => {
     if (reply.chat.id === chatId) {
